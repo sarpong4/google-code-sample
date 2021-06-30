@@ -8,12 +8,29 @@ videos = []
 with open('src/videos.txt') as f:
     videos = f.read().splitlines()
 
+# dictionary sets current playing status of all videos to 0 (not playing) - currently playing = 1
+current_play = {}
+
+# dictionary that relates vide0_id to video
+video = {}
+required_video = []
+for v in videos:
+    v_tagout = v.split(' |  ')
+    x = v_tagout[0].split(' | ')
+    video[x[1]] = x[0]
+    current_play[x[0]] = 0
+
+
+
+
 class VideoPlayer:
     """A class used to represent a Video Player."""
 
     def __init__(self):
         self._video_library = VideoLibrary()
         self.videos = videos
+        self.video = video
+        self.current_play = current_play
 
     def number_of_videos(self):
         num_videos = len(self._video_library.get_all_videos())
@@ -22,8 +39,8 @@ class VideoPlayer:
     def show_all_videos(self):
         """Returns all videos."""
         split_videos = []
-        for video in sorted(self.videos):
-            vid_dec = video.split(' |  ')
+        for view in sorted(self.videos):
+            vid_dec = view.split(' |  ')
             split_videos.append(vid_dec)
 
         for desc in split_videos:
@@ -35,7 +52,8 @@ class VideoPlayer:
                 print(f"{x[0]} ({x[1]}) [{tagged}]")
             else:
                 x =  desc[0].split(' | ')
-                print(f"{x[0]} ({x[1]}) []")
+                y = x[1].split(' |')
+                print(f"{x[0]} ({y[0]}) []")
 
     def play_video(self, video_id):
         """Plays the respective video.
@@ -43,7 +61,20 @@ class VideoPlayer:
         Args:
             video_id: The video_id to be played.
         """
-        print("play_video needs implementation")
+        playing = ''
+        stopping = ''
+        if video_id in self.video:
+            for vids in current_play:
+                if self.current_play[vids] == 1:
+                    stopping = vids
+                    self.current_play[vids] -= 1
+                    print(f"Stopping video: {stopping}")
+            playing = self.video[video_id]
+            self.current_play[playing] += 1
+            print(f"Playing video: {playing}")
+        else:
+            playing = "Video does not exist"
+            print(f"Cannot play video: {playing}")
 
     def stop_video(self):
         """Stops the current video."""
