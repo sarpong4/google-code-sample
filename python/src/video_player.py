@@ -1,6 +1,7 @@
 """A video player class."""
 
 from .video_library import VideoLibrary
+import random
 
 
 # Open videos file and parse each line as a list
@@ -78,12 +79,28 @@ class VideoPlayer:
 
     def stop_video(self):
         """Stops the current video."""
-
-        print("stop_video needs implementation")
+        x = len(self.current_play)
+        videos = []
+        for video in self.current_play:
+            videos.append(video)
+        i = 0
+        stat = 0
+        while i < x:
+            if self.current_play[videos[i]] == 1:
+                self.current_play[videos[i]] -= 1
+                print(f"Stopping video: {videos[i]}")
+                stat = 1
+                break
+                return True
+            i += 1
+        if stat == 0:
+            print("Cannot stop video: No video is currently playing")
+        return False
 
     def play_random_video(self):
         """Plays a random video from the video library."""
 
+        
         print("play_random_video needs implementation")
 
     def pause_video(self):
