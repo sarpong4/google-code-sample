@@ -3,11 +3,17 @@
 from .video_library import VideoLibrary
 
 
+# Open videos file and parse each line as a list
+videos = []
+with open('src/videos.txt') as f:
+    videos = f.read().splitlines()
+
 class VideoPlayer:
     """A class used to represent a Video Player."""
 
     def __init__(self):
         self._video_library = VideoLibrary()
+        self.videos = videos
 
     def number_of_videos(self):
         num_videos = len(self._video_library.get_all_videos())
@@ -15,8 +21,21 @@ class VideoPlayer:
 
     def show_all_videos(self):
         """Returns all videos."""
+        split_videos = []
+        for video in sorted(self.videos):
+            vid_dec = video.split(' |  ')
+            split_videos.append(vid_dec)
 
-        print("show_all_videos needs implementation")
+        for desc in split_videos:
+            if len(desc) >= 2:
+                space = " "
+                tags = space.join(desc[1:len(desc)]).split(' , ')
+                tagged = ", ".join(tags)
+                x =  desc[0].split(' | ')
+                print(f"{x[0]} ({x[1]}) [{tagged}]")
+            else:
+                x =  desc[0].split(' | ')
+                print(f"{x[0]} ({x[1]}) []")
 
     def play_video(self, video_id):
         """Plays the respective video.
