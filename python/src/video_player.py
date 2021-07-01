@@ -30,7 +30,7 @@ for v in videos:
         video[y[0]] = x[0]
         current_play[x[0]] = 0
         required_video[y[0]] = 0 # to use in show_playing. id equivalent of current_play
-        show_playingVid[y[0x]] = v
+        show_playingVid[y[0]] = v
 
 class VideoPlayer:
     """A class used to represent a Video Player."""
