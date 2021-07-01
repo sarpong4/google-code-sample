@@ -14,15 +14,23 @@ current_play = {}
 
 # dictionary that relates vide0_id to video
 video = {}
-required_video = []
+required_video = {}
+show_playingVid = {} # dictionary to relate video_id to line of videos.txt
 for v in videos:
     v_tagout = v.split(' |  ')
-    x = v_tagout[0].split(' | ')
-    video[x[1]] = x[0]
-    current_play[x[0]] = 0
-
-
-
+    if len(v_tagout) >= 2:
+        x = v_tagout[0].split(' | ')
+        video[x[1]] = x[0]
+        current_play[x[0]] = 0
+        required_video[x[1]] = 0 # to use in show_playing. id equivalent of current_play
+        show_playingVid[x[1]] = v
+    else:
+        x = v_tagout[0].split(' | ')
+        y = x[1].split(' |')
+        video[y[0]] = x[0]
+        current_play[x[0]] = 0
+        required_video[y[0]] = 0 # to use in show_playing. id equivalent of current_play
+        show_playingVid[y[0x]] = v
 
 class VideoPlayer:
     """A class used to represent a Video Player."""
@@ -32,6 +40,8 @@ class VideoPlayer:
         self.videos = videos
         self.video = video
         self.current_play = current_play
+        self.show_playingVid = show_playingVid
+        self.required_video = required_video
 
     def number_of_videos(self):
         num_videos = len(self._video_library.get_all_videos())
@@ -70,6 +80,10 @@ class VideoPlayer:
                     stopping = vids
                     self.current_play[vids] -= 1
                     print(f"Stopping video: {stopping}")
+                elif self.current_play[vids] == 2:
+                    stopping = vids
+                    self.current_play[vids] -= 2
+                    print(f"Stopping video: {stopping}")
             playing = self.video[video_id]
             self.current_play[playing] += 1
             print(f"Playing video: {playing}")
@@ -87,36 +101,118 @@ class VideoPlayer:
         stat = 0
         while i < x:
             if self.current_play[videos[i]] == 1:
-                self.current_play[videos[i]] -= 1
+                self.current_play[videos[i]] -= 1 
                 print(f"Stopping video: {videos[i]}")
                 stat = 1
                 break
-                return True
+            elif self.current_play[videos[i]] == 2: # if video is paused
+                self.current_play[videos[i]] -= 2
+                print(f"Stopping video: {videos[i]}")
+                stat = 1
+                break
             i += 1
         if stat == 0:
             print("Cannot stop video: No video is currently playing")
-        return False
 
     def play_random_video(self):
         """Plays a random video from the video library."""
+        videoIDs = []
+        for ids in self.video:
+            videoIDs.append(ids)
 
-        
-        print("play_random_video needs implementation")
+        video_id = random.choice(videoIDs)
+        self.play_video(video_id)
 
     def pause_video(self):
         """Pauses the current video."""
-
-        print("pause_video needs implementation")
+        x = len(self.current_play)
+        videos = []
+        for video in self.current_play:
+            videos.append(video)
+        i = 0
+        stat = 0
+        while i < x:
+            if self.current_play[videos[i]] == 1:
+                self.current_play[videos[i]] += 1 
+                print(f"Pausing video: {videos[i]}")
+                stat = 1
+                break
+            elif self.current_play[videos[i]] == 2: # if video is already paused
+                print(f"Video already paused: {videos[i]}")
+                stat = 1
+                break
+            i += 1
+        if stat == 0:
+            print("Cannot pause video: No video is currently playing")
 
     def continue_video(self):
         """Resumes playing the current video."""
 
-        print("continue_video needs implementation")
+        x = len(self.current_play)
+        videos = []
+        for video in self.current_play:
+            videos.append(video)
+        i = 0
+        stat = 0
+        while i < x:
+            if self.current_play[videos[i]] == 1:
+                print(f"Cannot contitue video: Video is not paused")
+                stat = 1
+                break
+            elif self.current_play[videos[i]] == 2: 
+                print(f"Continuing video: {videos[i]}")
+                self.current_play[videos[i]] -= 1
+                stat = 1
+                break
+            i += 1
+        if stat == 0:
+            print("Cannot continue video: No video is currently playing")
 
     def show_playing(self):
         """Displays video currently playing."""
-
-        print("show_playing needs implementation")
+        x = len(self.required_video)
+        videos = []
+        cur_video = []
+        for video in self.required_video:
+            videos.append(video)
+        for vid in self.current_play:
+            cur_video.append(vid)
+        i = 0
+        stat = 0
+        while i < x:
+            if self.current_play[cur_video[i]] == 1:
+                tec = self.show_playingVid[videos[i]]
+                desc = tec.split(" |  ")
+                if len(desc) >= 2:
+                    space = ""
+                    tags = space.join(desc[0]).split(' | ')
+                    tagged = ",".join(desc[1:len(desc)])
+                    x =  ", ".join(tagged.split(' , '))
+                    print(f"Currently playing: {tags[0]} ({tags[1]}) [{x}]")
+                else:
+                    space = ""
+                    tags = space.join(desc[0]).split(' | ')
+                    print(f"Currently playing: {tags[0]} ({tags[0]}) []")
+                stat = 1
+                break
+            elif self.current_play[cur_video[i]] == 2: # if video is paused
+                tec = self.show_playingVid[videos[i]]
+                desc = tec.split(" |  ")
+                if len(desc) >= 2:
+                    space = ""
+                    tags = space.join(desc[0]).split(' | ')
+                    tagged = ",".join(desc[1:len(desc)])
+                    x =  ", ".join(tagged.split(' , '))
+                    print(f"Currently playing: {tags[0]} ({tags[1]}) [{x}] - PAUSED")
+                else:
+                    space = ""
+                    tags = space.join(desc[0]).split(' | ')
+                    print(f"Currently playing: {tags[0]} ({tags[0]}) [] - PAUSED")
+                stat = 1
+                break
+            i += 1
+        if stat == 0:
+            print("No video is currently playing")
 
     def create_playlist(self, playlist_name):
         """Creates a playlist with a given name.
